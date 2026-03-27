@@ -2,34 +2,21 @@ workflows:
   my-workflow:
     name: Build APK Downloader Ngebut
     instance_type: mac_mini_m1
-    max_build_duration: 60
     scripts:
-      - name: Setup Environment & Dependencies
+      - name: Install Dependencies & Cython
         script: |
-          # 1. Setting Path Biar Gak Nyasar
-          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
-          
-          # 2. Update Pip & Install Bumbu Dapur
           pip install --upgrade pip
           pip install setuptools Cython==0.29.33 buildozer
-          
-      - name: Accept All Licenses (Mantra Anti-Gagal)
+      - name: Force Install Aidl & Build-Tools
         script: |
           export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
-          # Klik 'y' otomatis buat semua lisensi Google
           yes | sdkmanager --licenses || true
-          
-      - name: Pre-Install Android Tools
+          sdkmanager "build-tools;33.0.0" "platforms;android-33" "platform-tools"
+      - name: Build APK (Fixing Aidl Path)
         script: |
-          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
-          # Paksa instal build-tools biar Aidl ketemu
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
-          
-      - name: Build APK (The Final Boss Fight)
-        script: |
-          # Kasih tahu Buildozer alamat SDK-nya
+          # Mantra rahasia: kasih tahu Buildozer di mana Aidl berada
+          export PATH=$PATH:$ANDROID_SDK_ROOT/build-tools/33.0.0
           export ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT
           buildozer android debug
-          
     artifacts:
       - bin/*.apk
