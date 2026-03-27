@@ -7,15 +7,18 @@ workflows:
         script: |
           pip install --upgrade pip
           pip install setuptools Cython==0.29.33 buildozer
-      - name: Force Install Aidl & Build-Tools
+      - name: Force Aidl Path (Mantra Paksa)
         script: |
           export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
           yes | sdkmanager --licenses || true
+          # Paksa instal build-tools versi 33
           sdkmanager "build-tools;33.0.0" "platforms;android-33" "platform-tools"
-      - name: Build APK (Fixing Aidl Path)
+          
+          # JALUR KASAR: Bikin folder yang dicari Buildozer dan hubungkan ke Aidl
+          mkdir -p /Users/builder/clone/.buildozer/android/platform/android-sdk/build-tools
+          ln -s $ANDROID_SDK_ROOT/build-tools/33.0.0 /Users/builder/clone/.buildozer/android/platform/android-sdk/build-tools/33.0.0
+      - name: Build APK (Execute)
         script: |
-          # Mantra rahasia: kasih tahu Buildozer di mana Aidl berada
-          export PATH=$PATH:$ANDROID_SDK_ROOT/build-tools/33.0.0
           export ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT
           buildozer android debug
     artifacts:
