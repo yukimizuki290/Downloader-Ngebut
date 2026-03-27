@@ -1,0 +1,11 @@
+workflows:
+  my-workflow:
+    name: Build APK Downloader Ngebut
+    instance_type: mac_mini_m1
+    scripts:
+      - name: Install Buildozer
+        script: pip install buildozer
+      - name: Build APK
+        script: buildozer android debug
+    artifacts:
+      - bin/*.apk
