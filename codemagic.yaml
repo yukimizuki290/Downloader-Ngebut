@@ -7,11 +7,13 @@ workflows:
         script: |
           pip install --upgrade pip
           pip install setuptools Cython==0.29.33 buildozer
-      - name: Accept Android Licenses
+      - name: Accept Licenses & Install Build-Tools
         script: |
           yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
       - name: Build APK
         script: |
+          export ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT
           buildozer android debug
     artifacts:
       - bin/*.apk
