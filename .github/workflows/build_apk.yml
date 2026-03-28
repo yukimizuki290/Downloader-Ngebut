@@ -1,27 +1,31 @@
-name: Build APK Anti Gagal
+name: Build APK Sukses
 on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - name: Install Dependencies
+
+      - name: Install System Dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
-          pip install --upgrade pip
-          pip install Cython==0.29.33 buildozer
-      - name: Build APK (Auto-Accept SDK)
+          sudo apt install -y python3-pip build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-gstreamer-lite1.0-dev libgstreamer-plugins-base1.0-dev zip unzip openjdk-17-jdk
+          pip3 install --user --upgrade pip
+          pip3 install --user Cython==0.29.33 buildozer
+
+      - name: Build with Buildozer
         run: |
-          # Perintah sakti buat bikin file spec otomatis kalau belum ada
-          if [ ! -f buildozer.spec ]; then buildozer init; fi
-          # Langsung hajar build
+          # Buat file spec otomatis biar gak bingung
+          buildozer init
+          # Edit spec otomatis biar pake Android SDK 33 & NDK 25b (paling stabil)
+          sed -i 's/#android.api = 31/android.api = 33/g' buildozer.spec
+          sed -i 's/#android.ndk = 23b/android.ndk = 25b/g' buildozer.spec
+          sed -i 's/#android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
+          
+          # GAS POLL!
           yes | buildozer -v android debug
+        
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
